@@ -34,6 +34,39 @@ xg_cl.fit(X_train, y_train)
 preds = xg_cl.predict(X_test)
 ```
 
+### Decision Tree
+- Decision Tree has a single question being asked at each decision node, and only 2 possible choices, at the very bottom of each decision tree, there is a single possible decision.
+
+#### Decision trees as base learners
+- Any individual learning algorithm in an ensemble algorithm is a **base learner**. XGBoost itself is an ensemble learning method, it uses the outputs of many models for a final prediction.
+- Decision tree is a learning method that involves a tree-like graph to model either continuos or categorical choice given some data.
+- It is composed of a series of binary decisions (yes/no or true/false questions) that when answered in succession ultimately yield a prediction about the data at hand(these predictions happen at the leaves of the tree).
+- Decision trees are constructed iteratively (i.e, one binary decision at a time) until some stopping criterion is met(the depth of the tree reaches some pre-defined maximum value, for example)
+- During construction, the tree is built one split at a time, and the way that a split is selected (i.e, what feature to split on and where in the feature's range of values to split) can vary, but involves choosing a split point that segregates the target values better (puts each target category into buckets that are increasingly dominated by just one category) until all (or nearly all) values within a given split are exclusively of one category or another.
+- Using this process, each leaf of the decision tree will have a single category in the majority, or should be exclusivley of one category.
+
+#### Individual decision trees tend to overfit
+- Individual decision trees in general are low bias, high variance learning models.i.e, they are very good at learning realtionships within any data you train them on, but they tend to overfit the data we use to train them on and usually generalize to new data poorly.
+
+#### CART : Classification and Regression Trees
+- **XGBoost** uses a slighlty different decision tree called **classification and regression tree, or CART**. Whereas for the decision trees described above the leaf nodes always contain decision values, **`CART trees contain a real-valued score in each leaf`**, regardless of whether they are used for classification or regression.
+- The real-valued scores can then be thresholded to convert into categories for classification problems if necessary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
