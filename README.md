@@ -52,16 +52,48 @@ preds = xg_cl.predict(X_test)
 - **XGBoost** uses a slighlty different decision tree called **classification and regression tree, or CART**. Whereas for the decision trees described above the leaf nodes always contain decision values, **`CART trees contain a real-valued score in each leaf`**, regardless of whether they are used for classification or regression.
 - The real-valued scores can then be thresholded to convert into categories for classification problems if necessary.
 
+### Boosting
+- Boosting is not an ML algorithm but an concept that can be applied to a set of ML models. Specifically, it is an ensemble meta-algorithm primarily used to reduce any given single learner's variance and to convert many weak learners into an arbitrarily strong learner.
 
+#### Weak learner and strong learner
+- A weak learner is any ML algorithm that is just slightly better than chance.So, a decision tree that can predict some outcome slighlty more accurately than pure randomness would be considered a weak learner.
+- The principal insight that allows XGBoost to work is the fact that we can use boosting to convert a collection of weak learners into a strong learner.Where a strong learner is any alogrithm that can be tuned to acheive a good performance for some supervised learning problem.
 
+#### How boosting is accomplished
+- By iteratively learning a set of weak models on subsets of the data we have at hand, and weighting each of their predictions according to each weak learner's performance. We then combine all of the weak learner's predictions multiplied by their weights to obtain a single final weighted prediction that is much better than any of the individual predictions themselves. 
 
+#### Boosting example
+- Boosting using 2 decision trees. Given a specific example each tree gives a different prediction score depending on the data it sees. The prediction scores for each possibility are summed across trees and the prediction is simply the sum of the scores across both trees.
 
+#### Model evaluation through cross-validation
+- Example that shows how model evaluation using cross-validation works with XGBoost's learning api (which is different from the scikit-learn compatible API) as it has cross-validation capabilities baked in.
+- Cross validation is a robust method for estimating the expected performance of a ML model on unseen data by generating many non-overlapping train/test splits on the training data and reporting the average test set performance across the data splits.
 
+#### Cross-validation with XGBoost Example
 
+```python
+import xgboost as xgb
+import pandas as pd
 
+churn_data = pd.read_csv("classification_data.csv")
+churn_dmatrix = xgb.DMatrix(data=churn_data.iloc[:,:-1], label=churn_data.month_5_stil_here) 
+```
 
+- here dataset is converted into an optimized data structure that the creators of XGBoost made that gives the package its performance and efficiency gain called a DMatrix
+- When we use the **XGBoost cv object**, which is part of XGBoost's learning api we have to first explicitly convert our data into a **DMatrix**
+- So that's what is done here before cross validation is ran
 
+```python
+params = {"objective":"binary:logistic", "max_depth":4} 
+```
 
+- param dict to pass into cv, this is necessary because the cv method has no idea what kind of XGBoost model we are using and expects us to provide that info as a dictionary of appropriate key value pairs.
+- parameter dictionary is providing the objective function we would like to use and the maximum depth that every tree can grow to.
+
+```python
+cv_results = xgb.cv(dtrain=churn_dmatrix, params=params, nfold=4, num_boost_round=10, metrics="error", as_pandas=True)
+print("Accuracy: %f %((1-cv_results["test-error-mean"]).iloc[-1]))
+```
 
 
 
