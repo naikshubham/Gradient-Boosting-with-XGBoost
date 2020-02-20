@@ -95,6 +95,37 @@ cv_results = xgb.cv(dtrain=churn_dmatrix, params=params, nfold=4, num_boost_roun
 print("Accuracy: %f %((1-cv_results["test-error-mean"]).iloc[-1]))
 ```
 
+### When to use XGBoost
+- We should consider using XGBoost for any supervised learning task that fits the following criteria:
+- When we have a large number of training examples : a dataset that has few features and atleast 1000 examples. However, in general as long as the number of features in the training set is smaller than the number of examples we should be fine.
+- XGBoost tends to do well, when we have a mixture of categorical and numerical features or when we just have numeric features.
+
+### When to not use XGBoost
+- The most important kind of problems where XGBoost is a suboptimal choice involve either those that have found success using other state-of-the-art algorithms or those that suffer from dataset size issues.
+- Specificaly, XGBoost is not ideally suited for image recognition, computer vision, or natural language processing and understanding problems, as those kinds of problems can be much better tackled using deep learning approaches.
+- In terms of dataset size problems, XGBoost is not suitable for small training sets(less than 100 training examples) or when the number of training examples is significantly smaller than the number of features being used for training
+
+### XGBoost for Regression
+- Regression problems involve predicting continuos or real values.
+- Common regression metrics : Root mean squared error (RMSE) or Mean absolute error(MAE)
+- RMSE is computed by taking the difference between the actual and the predicted values for what we are predicting, squaring those differences, computing their mean and taking that value's square root. This allows us to treat negative and positive differences equally, but tends to punish larger differences between predicted and actual values much more than smaller ones.
+- MAE on other hand, simply sums the absolute differences between predicted and actual values across all of the samples we build our model on. Although MAE isn't affected by large differences as much as RMSE it lacks some nice mathematical properties that make it much less frequently used as an evaluation metric.
+- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
