@@ -110,7 +110,80 @@ print("Accuracy: %f %((1-cv_results["test-error-mean"]).iloc[-1]))
 - Common regression metrics : Root mean squared error (RMSE) or Mean absolute error(MAE)
 - RMSE is computed by taking the difference between the actual and the predicted values for what we are predicting, squaring those differences, computing their mean and taking that value's square root. This allows us to treat negative and positive differences equally, but tends to punish larger differences between predicted and actual values much more than smaller ones.
 - MAE on other hand, simply sums the absolute differences between predicted and actual values across all of the samples we build our model on. Although MAE isn't affected by large differences as much as RMSE it lacks some nice mathematical properties that make it much less frequently used as an evaluation metric.
-- 
+
+### Objective(loss) functions and base learners
+- An objective or loss function quantifies how far off our prediction is from the actual result for a given data point. It maps the difference between the predictions and the target to a real number.
+- When we construct any ML model, we do so in the hopes that it minimizes the loss function across all of the data points we pass in.That's our ultimate goal the smallest possible loss.
+
+#### Common loss functions and XGBoost
+- Loss functions have specific naming conventions in XGBoost. For regression models, the most common loss function used is called **reg linear**.
+- For binary classification models the most common loss functions used are **reg logistic**, when we simply want the category of the target, and **binary logistic**, when we want the actual predicted probability of the positive class.
+- So till now we used reg logistic loss function when building our classification models in XGBoost.
+
+#### Base learners and their need
+- XGBoost is an ensemble learning method composed of many individual models that are added together to generate a single prediction. Each of the individual models that are trained and combined are called base learners.
+- The goal of XGBoost is to have base learners that is slightly better than random guessing on certain subsets of training examples, and uniformly bad at the remainder, so that when all of the predictions are combined, the uniformly bad predictions cancel out and those slighlty better than chance combine into a single very good prediction.
+- Want base learners that when combined create final prediction that is non-linear. Each base learner should be good at distinguishing or predicting different parts of the dataset.
+- Two kinds of base learners: tree and linear
+
+#### Trees as base learners example : Using XGBoost's Scikit-learn compatible API
+
+```python
+import xgboost as xgb
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+boston_data = pd.read_csv('boston_housing.csv')
+x, y = boston_data.iloc[:,:-1], boston_data.iloc[:,-1]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+
+xg_reg = xgb.XGBRegressor(objective='reg:linear', n_estimators=10, seed=123) #booster="gbtree" is default
+xg_reg.fit(X_train, y_train)
+preds = xg_reg.predict(X_test)
+
+rmse = np.sqrt(mean_squared_error(y_test, pred))
+print("RMSE : %f" % (rmse))
+```
+
+#### Linear base learners example : XGBoost's learning API only
+
+```python
+import xgboost as xgb
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+boston_data = pd.read_csv('boston_housing.csv')
+x, y = boston_data.iloc[:,:-1], boston_data.iloc[:,-1]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+```
+
+- Convert training and testing sets into Dmatrix object, as required by the XGBoost learning API.
+- In params dict we specify the base learner we want i.e **gblinear** and the **reg linear** objective function
+
+```python
+DM_train = xgb.DMatrix(data=X_train, label=y_train)
+DM_test = xgb.DMatrix(data=X_test, label=y_test)
+params = {"booster":"gblinear", "objective":"reg:linear"}
+
+xgb_reg = xgb.train(params = params, dtrain=DM_train, num_boost_round=10)
+preds = xg_reg.predict(DM_test)
+
+rmse = np.sqrt(mean_squared_error(y_test, preds))
+print("RMSE: %f" % (rmse))
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
