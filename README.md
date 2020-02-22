@@ -174,10 +174,109 @@ rmse = np.sqrt(mean_squared_error(y_test, preds))
 print("RMSE: %f" % (rmse))
 ```
 
+### Regularization in XGBoost
+- The idea of penalizing models as they become more complex is called regularization.
+- Loss functions in XGBoost are used to find models that are both accurate and as simple as they can possibly be. There are several parameters that can be tweaked in XGBoost to limit model complexity by altering the loss function.
+- Regularization parameters in XGBoost : **Gamma** is a parameter for tree base learners that controls whether a given node on a base learner will split based on the expected reduction in the loss that would occur after performing the split, so that higher values lead to fewer splits.
+- **Alpha** is another name for L1 regularization. However, this regularization term is a penalty on leaf weights rather than on feature weights, as is the case in linear or logistic regression.
+- Higher alpha values lead to stronger L1 regularization, which causes many leaf weights in the base learners to go to 0.
+- **Lambda** is another name for L2 regularization. L2 regularization is a much smoother penalty than L1 and causes leaf weights to smoothly decrease, instead of enforcing strong sparsity constraints on the leaf weights as in L1.
+
+#### L1 regularization in XGBoost example
+
+```python
+import xgboost as xgb
+import pandas as pd
+boston_data = pd.read_csv("boston_data.csv")
+
+X,y = boston_data.iloc[:,:-1], boston_data.iloc[:,-1]
+```
+
+- convert X matrix and y vector into a single optimized DMatrix object 
+
+```python
+boston_dmatrix = xgb.DMatrix(data=X, label=y)
+params = {"objective":"reg:linear", "max_depth":4}
+l1_params = [1, 10, 100]
+rmse_l1 = []
+for reg in l1_params:
+    params['alpha'] = reg
+    cv_results = xgb.cv(dtrain=boston_dmatrix, params=params, nfold=4, num_boost_round=10, metrics="rmse", as_pandas=True, seed=123)
+    rmse_l1.append(cv_results["test-rmse-mean"].tail(1).values[0])
+    
+print("Best rmse as a function of l1:")
+print(pd.DataFrame(list(zip(l1_params, rmse_l1)), columns=["l1", "rmse"])
+```
+
+#### Compare Base Learners in XGBoost
+- **Linear Base Learner** : Sum of linear terms exactly as we would find in a linear or logistic regression model.
+- When we combine many of these base models into an ensemble we get a weighted sum of linear models, which itself is linear. Since we don't get any non linear combination of features in the final model, this approach is rarely used, as we can get identical performance from a regularized linear model.
+- **Tree Base Learner** : The **tree base learner** uses decision trees as base models. When the decision trees are all combined into an ensemble, thier combination becomes an nonlinear function of each individual tree, which itself is nonlinear.
+
+##### Creating dataframes from multiple equal-length lists
+
+```python
+pd.DataFrame(list(zip(list1, list2)), columns=['list1', 'list2']))
+```
+
+- In python 3, zip creates a generator or an object that doesnt have to be completely instantiated at runtime. Inorder for the zipped pair of list to be instantitated, we have to cast the zip generator object into a list directly.
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- 
 
 
 
