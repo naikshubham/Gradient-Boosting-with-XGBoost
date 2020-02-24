@@ -221,6 +221,68 @@ pd.DataFrame(list(zip(list1, list2)), columns=['list1', 'list2']))
 
 - In python 3, zip creates a generator or an object that doesnt have to be completely instantiated at runtime. Inorder for the zipped pair of list to be instantitated, we have to cast the zip generator object into a list directly.
 
+### Tuning the XGBoost model
+- Lets compare untuned cross validated XGBoost and tuned XGBoost models.
+
+```python
+# untuned model example
+
+import pandas as pd
+import xgboost as xgb
+import numpy as np
+
+housing_data = pd.read_csv("maes_housing_processed.csv")
+X, y = housing_data[housing_data.columns.tolist()[:-1]],
+       housing_data[housing_data.columns.tolist()[-1]]
+housing_dmatrix = xgb.DMatrix(data=X, label=y)
+untuned_params = {"objective":"reg:linear"}
+untuned_cv_results_rmse = xgb.cv(dtrain=housing_dmatrix, params=untuned_params, nfold=4, metric="rmse", as_pandas=True, seed=123)
+
+# untuned rmse : 34624.229980
+```
+
+```python
+# tuned model example
+
+import pandas as pd
+import xgboost as xgb
+import numpy as np
+
+housing_data = pd.read_csv("maes_housing_processed.csv")
+X, y = housing_data[housing_data.columns.tolist()[:-1]],
+       housing_data[housing_data.columns.tolist()[-1]]
+housing_dmatrix = xgb.DMatrix(data=X, label=y)
+tuned_params = {"objective":"reg:linear", "colsample_bytree":0.3, "learning_rate":0.1, "max_depth":5}
+# some of the important XGBoost parameters
+
+tuned_cv_results_rmse = xgb.cv(dtrain=housing_dmatrix, params=tuned_params, nfold=4, num_boost_round=200, metrics="rmse", as_pandas=True, seed=123)
+
+# tuned rmse: 29812.683594
+```
+
+- 14% reduction in RMSE with tuned parameters
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
