@@ -262,11 +262,23 @@ tuned_cv_results_rmse = xgb.cv(dtrain=housing_dmatrix, params=tuned_params, nfol
 
 - 14% reduction in RMSE with tuned parameters
 
+### Tunable parameters in XGBoost
+- Parameters that can be tuned are different for each base learner.
 
+#### Common tree tunable parameters
+- The frequently tuned parameters are below:
+- **learning rate** : affects how quickly the model fits the residual error using additional base learners. A low learning rate will require more boosting rounds to achieve the same reduction in residual error as an XGBoost model with a high learning rate.
+- **`gamma`: min loss reduction to create new tree split, `lambda`: L2 reg on leaf weights, `alpha`: L1 reg on leaf weights** : all have an affect on how strongly regularized the trained model will be.
+- **max_depth** : `max depth per tree`, Max depth must be a positive integer and affects how deeply each tree is allowed to grow during any given boosting round.
+- **subsample: % samples used per tree** : subsample must be a value between 0 and 1 & is the fraction of the total training set that can be used for any boosting round. If the value is low, then the fraction of training data used per boosting round would be low and we may run into underfitting problems, a value that is very high can lead to overfitting as well.
+- **colsample_bytree : % features used per tree**  : Colsample bytree is the fraction of features we can select from during any given boosting round and must also be value bet 0 & 1. A large value means that almost all features can be used to build a tree during a given boosting round, whereas a small value means that the fraction that can be selected from is very small. **In general, smaller colsample_bytree values can be thought as providing additional regularization to the model, whereas using all columns may in certain cases overfit a trained model**
 
-
-
-
+#### Linear tunable parameters
+- For linear base learner, the number of tunable parameters is smaller. We only have access to L1 and L2 regularization on the weights associated with any given feature, and then another regularization term that can be applied to the model's bias.
+- **lambda : L2 reg on weights**
+- **alpha : L1 reg on weights**
+- **lambda_bias : L2 reg term on bias**
+- We can also tune **number of boosting rounds**
 
 
 
