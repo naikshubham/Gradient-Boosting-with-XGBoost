@@ -280,7 +280,67 @@ tuned_cv_results_rmse = xgb.cv(dtrain=housing_dmatrix, params=tuned_params, nfol
 - **lambda_bias : L2 reg term on bias**
 - We can also tune **number of boosting rounds**
 
+### Grid Search and Random Search
+- Grid search is a method of exhaustively searching through a collection of possible values. For eg, if we have 2 hyperparameters that we would like to tune, and 4 possible values each hyperparameter, then a grid search over that parameter space would try all 16 possible parameter configurations.
+- In grid search,we try every parameter configuration, evaluate some metric for that configuration, and pick the parameter configuration that gives us the best value for the metric we were using e.g RMSE error.
 
+```python
+# grid search example
+
+import pandas as pd
+import xgboost as xgb
+import numpy as np
+from sklearn.model_selection import GridSearchCV
+
+housing_data = pd.read_csv("maes_housing_processed.csv")
+X, y = housing_data[housing_data.columns.tolist()[:-1]],
+       housing_data[housing_data.columns.tolist()[-1]]
+housing_dmatrix = xgb.DMatrix(data=X, label=y)
+
+# create a grid of hyperparameter we want to search over
+gbm_param_grid = {"learning_rate":[0.01, 0.1, 0.5, 0.9],
+                   "n_estimators":[200],
+                   "subsample":[0.3, 0.5, 0.9]
+                 }
+                 
+gbm = xgb.XGBRegressor()
+grid_mse = GridSearchCV(estimator=gbm param_grid=gbm_param_grid. scoring="neg_mean_squared_error", cv=4, verbose=1)
+
+grid_mse.fit(X,y)
+print("Best parameters found:", grid_mse.best_params_)
+print("Lowest RMSE found:", np.sqrt(np.abs(grid_mse.best_score_)))
+```
+
+#### Random search
+- The number of models that we are required to iterate over doesnt grow as we expand the overall hyperparameter space. In random search we get to decide how many models or iterations we want to try out before stopping.
+- Random search simply involves drawing a random combination of possible hyperparameter values from the range of allowable hyperparameters a set number of time. Each time we train a model with the selected hyperparameters, evaluate the performance of that model and then repeat.
+- When we have created the number of models we had specified initially, then simply pick the best one.
+
+```python
+# random search example
+
+import pandas as pd
+import xgboost as xgb
+import numpy as np
+from sklearn.model_selection import GridSearchCV
+
+housing_data = pd.read_csv("maes_housing_processed.csv")
+X, y = housing_data[housing_data.columns.tolist()[:-1]],
+       housing_data[housing_data.columns.tolist()[-1]]
+housing_dmatrix = xgb.DMatrix(data=X, label=y)
+
+gbm_param_grid = {"learning_rate":np.arange(0.05, 1.05, .05),
+                   "n_estimators":[200],
+                   "subsample":np.arange(0.05, 1.05, .05)
+                 }
+gbm = xgb.XGBRegressor()
+randomized_mse = GridSearchCV(estimator=gbm param_distributions=gbm_param_grid, n_iter=25, scoring="neg_mean_squared_error", cv=4, verbose=1)
+
+randomized_mse.fit(X,y)
+```
+
+- there are 20 values for learning rate and 20 values for subsample which would be 400 models to try if we ran a grid search (which we are'nt doing here)
+- we also set the number of iterations we want the random search to proceed to 25, so we know it will not be able to try all 400 possible parameter configurations. 
 
 
 
