@@ -342,6 +342,67 @@ randomized_mse.fit(X,y)
 - there are 20 values for learning rate and 20 values for subsample which would be 400 models to try if we ran a grid search (which we are'nt doing here)
 - we also set the number of iterations we want the random search to proceed to 25, so we know it will not be able to try all 400 possible parameter configurations. 
 
+### Limitation of Grid search and Random Search
+- As long as the search over hyperparameters are kept small, grid search will give an answer in reasonable amount of time. However as the number of hyperparameters grows, the time it takes to complete a full grid search increases exponentially
+- Since we can specify how many iterations a random search should be run, the time it takes to finish the random search wont explode as we add more hyperparameters to search.
+
+###  Pipelines using sklearn
+- Pipelines in sklearn are objects that take a list of named **2-tuples(name, pipeline_step)** as input. The named tuples must always contain a **string name as the first element** in each tuple and any **scikit-learn compatible transformer or estimator object as the second element**.
+- Each named tuple in the pipeline is called a step, and the list of transformations that are contained in the list are executed in order once some data is passed through the pipeline. This is done using the standard fit/predict paradigm that is standard in scikit-learn.
+- Finally, where pipelines are really useful is that they can be used as input estimator object into other scikit-learn objects themselves the most useful of which are the cross_vaLscore method which allows for efficient cross-validation and out of sample metric calculation, and the grid serach and random search approaches for tuning hyperparameters.
+
+#### Scikit-learn pipeline example
+
+```python
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import cross_val_score
+
+names = ["crime", "zone", "industry", "charles"]
+data = pd.read_csv("boston_housing.csv", names=names)
+
+X, y = data.iloc[:,:-1], data.iloc[:,-1]
+rf_pipeline = Pipeline[("st_scaler", StandardScaler()), "rf_model", RandomForestRegressor())]
+
+scores = cross_val_score(rf_pipeline, X, y, scoring="neg_mean_squared_error", cv=10)
+
+final_avg_rmse = np.mean(np.sqrt(np.abs(scores)))
+
+print("Final RMSE:", final_avg_rmse)
+
+# Final RMSE : 4.545
+```
+
+- `neg_mean_squared_error` is a scikit-learn's API-specific way of calculating the mean squared error in an API-compatible way. Negative mean squared errors don't actually exists as all squares must be positive when working with real numbers.
+
+#### Preprocessing I : LabelEncoder and OneHotEncoder
+- The first approach invovles using the LabelEncoder and OneHotEncoder classes of scikit-learn's preprocessing submodule one after the other.
+- `LabelEncoder` simply converts a categorical column of strings into integers that map onto those strings.
+- `OneHotEncoder` takes a column of integers that are treated as categorical values, and encodes them as dummy variables.
+- The **problem** wit this 2-step method, however is that it cannot currently be done within a pipeline.
+
+#### Preprocessing II : DictVectorizer
+- The second approach involves using a dict-vectorizer, can accomplish both steps in one line of code.
+- The **DictVectorizer** is a class found in scikit-learn's feature extraction submodule and is traditionally used in text processing pipelines by converting lists of feature mappings into vectors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
