@@ -388,6 +388,40 @@ print("Final RMSE:", final_avg_rmse)
 - The second approach involves using a dict-vectorizer, can accomplish both steps in one line of code.
 - The **DictVectorizer** is a class found in scikit-learn's feature extraction submodule and is traditionally used in text processing pipelines by converting lists of feature mappings into vectors
 
+### Incorporating XGBoost into pipelines
+
+#### Scikit-learn pipeline example with XGBoost
+
+```python
+import pandas as pd
+import xgboost as xgb
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import cross_val_score
+
+names = ["crime", "zone", "industry", "charles", "no", "rooms", "age",
+        "distance", "radial", "tax", "pupil", "aam", "lower", "med_price"]
+
+data = pd.read_csv("boston_housing.csv", names=names)
+X, y = data.iloc[:,:-1], data.iloc[:,-1]
+
+xgb_pipeline = Pipeline[("st_scaler", StandardScaler(), ("xgb_model", xgb.XGBRegressor())]
+
+scores = cross_val_score(xgb_pipeline, X, y, scoring='neg_mean_squared_error', cv=10)
+
+final_avg_rmse = np.mean(np.sqrt(np.abs(scores)))
+print("Final XGB RMSE:", final_avg_rmse)
+```
+
+#### Additional components introduced for pipelines
+- **sklearn_pandas** : is a separate library that attempts to bridge the gap between working with pandas and working with scikit-learn, as they don't always work seamlessly together.
+- Specifically, sklearn_pandas has a generic class called **DataFrameMapper**, that allows for easy conversion between scikit-learn aware objects, or pure numpy arrays and the DataFrame.
+- **CategoricalImputer** : Allow for imputation of categorical variables before conversion to integers
+- Use the Imputer class from scikit learns preprocesing submodule that allows us to fill in missing numerical values, and the FeatureUnion class found in scikit-learn's pipeline submodule
+- **sklearn.preprocessing** -> **Imputer**
+- **sklearn.pipeline** -> **FeatureUnion**
+- The FeatureUnion class allows us to combine separate pipeline outputs into a single pipeline output, for e.g we would need to do if we had one set of preprocessing steps we needed to perform on the categorical features of a dataset and a distinct set of preprocessing steps on the numeric features found in a dataset.
 
 
 
